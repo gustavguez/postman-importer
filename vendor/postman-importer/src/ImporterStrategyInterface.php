@@ -6,6 +6,6 @@ namespace PostmanImporter;
  *
  * @author gustavo-rodriguez
  */
-interface ImporterInterface {
-    
+interface ImporterStrategyInterface {
+    public function import();
 }

@@ -7,4 +7,7 @@ use PostmanImporter\Importer;
 
 //Create importer and run
 $importer = new Importer(dirname(__FILE__) . '/src/');
-$importer->run();
+$result = $importer->run();
+
+//Print result
+var_dump($result);
