@@ -44,7 +44,7 @@ class Collection {
         
         //Autoload id and schema
         $this->postmanId = md5($name);
-        $this->schema = 'https://schema.getpostman.com/json/collection/v2.0.0/collection.json';
+        $this->schema = 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json';
     }
     
     /**
