@@ -1,4 +1,5 @@
 /dist/
 /src/
 /vendor/
+!/vendor/postman-importer
 !/vendor/postman-importer/*
