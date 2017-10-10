@@ -1,0 +1,17 @@
+{
+    "name": "gustaf-uy/postman-importer",
+    "description": "Postman collection importer",
+    "authors": [
+        {
+            "name": "Gustavo Rodriguez",
+            "email": "1990Cynet@gmail.com"
+        }
+    ],
+    "minimum-stability": "beta",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "PostmanImporter\\": "./vendor/postman-importer/src/"
+        }
+    }
+}
