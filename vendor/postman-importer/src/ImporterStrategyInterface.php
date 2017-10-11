@@ -7,5 +7,5 @@ namespace PostmanImporter;
  * @author gustavo-rodriguez
  */
 interface ImporterStrategyInterface {
-    public function import();
+    public function import($content);
 }
