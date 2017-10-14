@@ -6,7 +6,7 @@ include './vendor/autoload.php';
 use PostmanImporter\Importer;
 
 //Create importer and run
-$importer = new Importer(dirname(__FILE__));
+$importer = new Importer(__DIR__);
 $result = $importer->run();
 
 //Print result
