@@ -46,19 +46,16 @@ class Importer {
             //Control scandir resturn
             if (is_array($files) && count($files)) {
                 foreach ($files as $file) {
-                    //Get file extension
-                    $fileExtension = $this->getFileExtension($file);
+                    //Create sosurceFile
+                    $sourceFile = new SourceFile($srcDir, $file);
 
                     //Get importer strategy
-                    $strategy = ImporterStrategyFactory::create($fileExtension);
+                    $strategy = ImporterStrategyFactory::create($sourceFile);
 
                     //Check strategy
                     if ($strategy instanceof ImporterStrategyInterface) {
-                        //Load file
-                        $fileContent = $this->getFileContent($srcDir, $file);
-
                         //Import strategy
-                        $collection = $strategy->import($fileContent);
+                        $collection = $strategy->import($sourceFile);
 
                         //Set false as default
                         $result[$file] = false;
@@ -66,7 +63,7 @@ class Importer {
                         //Check result
                         if ($collection instanceof Collection) {
                             //Write to disk
-                            $result[$file] = $this->writeCollectionToDisk($collection, $distDir, $file);
+                            $result[$file] = $this->writeCollectionToDisk($collection, $distDir, $sourceFile);
                         }
                     }
                 }
@@ -77,63 +74,23 @@ class Importer {
 
     /**
      * 
-     * @param string $fileName
-     * @return string
-     */
-    private function getFileExtension($fileName) {
-        $fileParts = explode('.', $fileName);
-        return array_pop($fileParts);
-    }
-
-    /**
-     * 
-     * @param string $fileName
-     * @return string
-     */
-    private function getFileName($fileName) {
-        $fileParts = explode('.', $fileName);
-        array_pop($fileParts);
-        return implode('.', $fileParts);
-    }
-
-    /**
-     * 
-     * @param string $fileName
+     * @param SourceFile $sourceFile
      * @return array
      */
-    private function getFileContent($baseUrl, $fileName) {
-        $fileContent = [];
-
-        try {
-            //Get file content
-            $aux = file_get_contents($baseUrl . $fileName);
-
-            //Get decoded content
-            $fileContent = json_decode($aux, true);
-        } catch (Exception $exc) {
-            //Do nothing
-        }
-
-        return $fileContent;
-    }
-
-    /**
-     * 
-     * @param string $fileName
-     * @return array
-     */
-    private function writeCollectionToDisk(Collection $collection, $baseUrl, $originalFileName) {
+    private function writeCollectionToDisk(Collection $collection, $baseUrl, SourceFile $sourceFile) {
         $result = false;
 
         try {
-            //Parse base name
-            $baseName = sprintf('%s.%s', $this->getFileName($originalFileName), Collection::EXTENSION);
+            $fileName = $sourceFile->getName();
             
+            //Parse base name
+            $baseName = sprintf('%s.%s', $fileName, Collection::EXTENSION);
+
             //Get collection array
             $array = $collection->toArray();
-            
+
             //File put content
-            $result = (file_put_contents($baseUrl.$baseName, json_encode($array, JSON_UNESCAPED_SLASHES)) > 0);
+            $result = (file_put_contents($baseUrl . $baseName, json_encode($array, JSON_UNESCAPED_SLASHES)) > 0);
         } catch (Exception $exc) {
             //Do nothing
         }

@@ -3,6 +3,7 @@
 namespace PostmanImporter;
 
 use PostmanImporter\Importers\HarImporterStrategy;
+use PostmanImporter\SourceFile;
 
 /**
  * Description of ImporterStrategyFactory
@@ -14,14 +15,14 @@ class ImporterStrategyFactory {
     /**
      * Factory for importer stragies 
      * 
-     * @param string $fileExtension
+     * @param SourceFile $sourceFile
      * @return ImporterStrategyInterface
      */
-    public static function create($fileExtension){
+    public static function create(SourceFile $sourceFile){
         $importerStrategy = null;
         
         //Switch extension
-        switch ($fileExtension) {
+        switch ($sourceFile->getExtension()) {
             case 'har':
                 $importerStrategy = new HarImporterStrategy();
                 break;

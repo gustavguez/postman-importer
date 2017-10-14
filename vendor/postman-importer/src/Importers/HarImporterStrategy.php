@@ -3,6 +3,7 @@
 namespace PostmanImporter\Importers;
 
 use PostmanImporter\ImporterStrategyInterface;
+use PostmanImporter\SourceFile;
 use PostmanImporter\Collection\Collection;
 use PostmanImporter\Collection\Item;
 use PostmanImporter\Collection\ItemRequest;
@@ -21,8 +22,13 @@ class HarImporterStrategy implements ImporterStrategyInterface {
      * Impor logic, creates object for each part of har file,
      * and each part export an postmal collection json partial.
      * After creating object, just execute toArray methods and write json file.
+     * 
+     * @param SourceFile $sourceFile
+     * @return Collection
      */
-    public function import($harContent) {
+    public function import(SourceFile $sourceFile) {
+        $harContent = $sourceFile->getContent();
+        
         //Check first Har content type
         if (is_array($harContent) && !empty($harContent['log'])) {
             $creator = $harContent['log']['creator'];
