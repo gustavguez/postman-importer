@@ -6,6 +6,8 @@ use PostmanImporter\ImporterStrategyInterface;
 use PostmanImporter\Entities\Collection;
 use PostmanImporter\Entities\Item;
 use PostmanImporter\Entities\ItemRequest;
+use PostmanImporter\Entities\ItemRequestBody;
+use PostmanImporter\Entities\ItemRequestData;
 use PostmanImporter\Entities\ItemRequestHeader;
 
 /**
@@ -16,7 +18,9 @@ use PostmanImporter\Entities\ItemRequestHeader;
 class HarImporterStrategy implements ImporterStrategyInterface {
 
     /**
-     * Impor logic
+     * Impor logic, creates object for each part of har file,
+     * and each part export an postmal collection json partial.
+     * After creating object, just execute toArray methods and write json file.
      */
     public function import($harContent) {
         //Check first Har content type
@@ -35,7 +39,8 @@ class HarImporterStrategy implements ImporterStrategyInterface {
                     //Parse request
                     $request = $entry['request'];
                     $headers = [];
-                    
+                    $bodyData = [];
+
                     //Load headers
                     if (is_array($request['headers']) && count($request['headers'])) {
                         foreach ($request['headers'] as $header) {
@@ -44,24 +49,44 @@ class HarImporterStrategy implements ImporterStrategyInterface {
                             $itemRequestHeader->setKey($header['name']);
                             $itemRequestHeader->setValue($header['value']);
                             $itemRequestHeader->setDescription('');
-                            
+
                             //Push
                             $headers[] = $itemRequestHeader;
+                        }
+                    }
+
+                    //Load post data
+                    if (!empty($request['postData']) && !empty($request['postData']['text'])) {
+                        $postData = (array) json_decode($request['postData']['text']);
+                        
+                        //Foreach data
+                        foreach ($postData as $key => $value) {
+                            $data = new ItemRequestData();
+                            $data->setKey($key);
+                            $data->setValue($value);
+                            
+                            //Push
+                            $bodyData[] = $data;
                         }
                     }
 
                     //create collection item
                     $item = new Item();
                     $item->setName($request['url']);
+                    
+                    //Create request body
+                    $body = new ItemRequestBody();
+                    $body->setMode('formdata');
+                    $body->setData($bodyData);
 
                     //Create request
                     $itemRequest = new ItemRequest();
-                    $itemRequest->setBody([]);
+                    $itemRequest->setBody($body);
                     $itemRequest->setDescription('');
                     $itemRequest->setHeader($headers);
                     $itemRequest->setMethod($request['method']);
                     $itemRequest->setUrl($request['url']);
-                    
+
                     //Load item and push
                     $item->setRequest($itemRequest);
                     $items[] = $item;
@@ -70,7 +95,7 @@ class HarImporterStrategy implements ImporterStrategyInterface {
 
             //Load items
             $collection->setItems($items);
-            
+
             return $collection;
         }
     }

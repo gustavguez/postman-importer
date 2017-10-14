@@ -29,7 +29,7 @@ class ItemRequest {
 
     /**
      *
-     * @var string 
+     * @var ItemRequestBody 
      */
     protected $body;
 
@@ -65,7 +65,7 @@ class ItemRequest {
 
     /**
      * 
-     * @return array
+     * @return ItemRequestBody
      */
     public function getBody() {
         return $this->body;
@@ -105,9 +105,9 @@ class ItemRequest {
 
     /**
      * 
-     * @param array $body
+     * @param ItemRequestBody $body
      */
-    public function setBody($body) {
+    public function setBody(ItemRequestBody $body) {
         $this->body = $body;
     }
 
@@ -126,7 +126,7 @@ class ItemRequest {
     public function toArray() {
         return [
             'url' => $this->url,
-            'body' => $this->body,
+            'body' => $this->body instanceof ItemRequestBody ? $this->body->toArray() : [],
             'description' => $this->description,
             'method' => $this->method,
             //Map headers to array
