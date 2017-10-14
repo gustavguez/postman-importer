@@ -19,6 +19,23 @@ use PostmanImporter\Collection\ItemRequestHeader;
 class HarImporterStrategy implements ImporterStrategyInterface {
 
     /**
+     * Ignore regex urls
+     * @var array 
+     */
+    protected static $ignoreURLS = [
+        '/[\w\-]+\.(jpg|jpeg|gif|png|bmp|svg|js)/',
+        '/maps.google(\.com)?/'
+    ];
+    
+    /**
+     * Ignore headers names
+     * @var array 
+     */
+    protected static $ignoreHeaders = [
+        'Content-Type', //Breaks Postman payload
+    ];
+
+    /**
      * Impor logic, creates object for each part of har file,
      * and each part export an postmal collection json partial.
      * After creating object, just execute toArray methods and write json file.
@@ -28,7 +45,7 @@ class HarImporterStrategy implements ImporterStrategyInterface {
      */
     public function import(SourceFile $sourceFile) {
         $harContent = $sourceFile->getContent();
-        
+
         //Check first Har content type
         if (is_array($harContent) && !empty($harContent['log'])) {
             $creator = $harContent['log']['creator'];
@@ -46,10 +63,20 @@ class HarImporterStrategy implements ImporterStrategyInterface {
                     $request = $entry['request'];
                     $headers = [];
                     $bodyData = [];
+                    
+                    //Check ignored urls
+                    if(!$this->validateURL($request['url'])){
+                        continue;
+                    }
 
                     //Load headers
                     if (is_array($request['headers']) && count($request['headers'])) {
                         foreach ($request['headers'] as $header) {
+                            //Check ignored headers
+                            if(in_array($header['name'], self::$ignoreHeaders)){
+                                continue;
+                            }
+                            
                             //Create item header
                             $itemRequestHeader = new ItemRequestHeader();
                             $itemRequestHeader->setKey($header['name']);
@@ -64,13 +91,13 @@ class HarImporterStrategy implements ImporterStrategyInterface {
                     //Load post data
                     if (!empty($request['postData']) && !empty($request['postData']['text'])) {
                         $postData = (array) json_decode($request['postData']['text']);
-                        
+
                         //Foreach data
                         foreach ($postData as $key => $value) {
                             $data = new ItemRequestData();
                             $data->setKey($key);
                             $data->setValue($value);
-                            
+
                             //Push
                             $bodyData[] = $data;
                         }
@@ -79,7 +106,7 @@ class HarImporterStrategy implements ImporterStrategyInterface {
                     //create collection item
                     $item = new Item();
                     $item->setName($request['url']);
-                    
+
                     //Create request body
                     $body = new ItemRequestBody();
                     $body->setMode('formdata');
@@ -104,6 +131,26 @@ class HarImporterStrategy implements ImporterStrategyInterface {
 
             return $collection;
         }
+    }
+    
+    /**
+     * Validate url
+     * 
+     * @param string $url
+     * @return boolean
+     */
+    protected function validateURL($url){
+        $valid = true;
+        
+        //For each validate regex
+        for ($index = 0; $index < count(self::$ignoreURLS) && $valid; $index++) {
+            preg_match(self::$ignoreURLS[$index], $url, $matches);
+            
+            //Load valid
+            $valid = count($matches) === 0;
+        }
+        
+        return $valid;
     }
 
 }
