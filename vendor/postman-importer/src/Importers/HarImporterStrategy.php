@@ -10,6 +10,7 @@ use PostmanImporter\Collection\ItemRequest;
 use PostmanImporter\Collection\ItemRequestBody;
 use PostmanImporter\Collection\ItemRequestData;
 use PostmanImporter\Collection\ItemRequestHeader;
+use PostmanImporter\Helpers\PayloadParserHelper;
 
 /**
  * Description of HarImporterStrategy
@@ -26,7 +27,7 @@ class HarImporterStrategy implements ImporterStrategyInterface {
         '/[\w\-]+\.(jpg|jpeg|gif|png|bmp|svg|js)/',
         '/maps.google(\.com)?/'
     ];
-    
+
     /**
      * Ignore headers names
      * @var array 
@@ -63,9 +64,9 @@ class HarImporterStrategy implements ImporterStrategyInterface {
                     $request = $entry['request'];
                     $headers = [];
                     $bodyData = [];
-                    
+
                     //Check ignored urls
-                    if(!$this->validateURL($request['url'])){
+                    if (!$this->validateURL($request['url'])) {
                         continue;
                     }
 
@@ -73,10 +74,10 @@ class HarImporterStrategy implements ImporterStrategyInterface {
                     if (is_array($request['headers']) && count($request['headers'])) {
                         foreach ($request['headers'] as $header) {
                             //Check ignored headers
-                            if(in_array($header['name'], self::$ignoreHeaders)){
+                            if (in_array($header['name'], self::$ignoreHeaders)) {
                                 continue;
                             }
-                            
+
                             //Create item header
                             $itemRequestHeader = new ItemRequestHeader();
                             $itemRequestHeader->setKey($header['name']);
@@ -90,7 +91,7 @@ class HarImporterStrategy implements ImporterStrategyInterface {
 
                     //Load post data
                     if (!empty($request['postData']) && !empty($request['postData']['text'])) {
-                        $postData = (array) json_decode($request['postData']['text']);
+                        $postData = PayloadParserHelper::parse($request['postData']['mimeType'], $request['postData']['text']);
 
                         //Foreach data
                         foreach ($postData as $key => $value) {
@@ -132,24 +133,24 @@ class HarImporterStrategy implements ImporterStrategyInterface {
             return $collection;
         }
     }
-    
+
     /**
      * Validate url
      * 
      * @param string $url
      * @return boolean
      */
-    protected function validateURL($url){
+    protected function validateURL($url) {
         $valid = true;
-        
+
         //For each validate regex
         for ($index = 0; $index < count(self::$ignoreURLS) && $valid; $index++) {
             preg_match(self::$ignoreURLS[$index], $url, $matches);
-            
+
             //Load valid
             $valid = count($matches) === 0;
         }
-        
+
         return $valid;
     }
 
