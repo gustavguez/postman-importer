@@ -21,7 +21,7 @@ class Importer {
      * 
      * @param string $baseUrl
      */
-    function __construct($baseUrl) {
+    public function __construct($baseUrl) {
         $this->baseUrl = $baseUrl;
     }
 
