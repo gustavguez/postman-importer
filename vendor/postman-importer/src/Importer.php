@@ -2,7 +2,7 @@
 
 namespace PostmanImporter;
 
-use PostmanImporter\Entities\Collection;
+use PostmanImporter\Collection\Collection;
 use Exception;
 
 /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace PostmanImporter\Entities;
+namespace PostmanImporter\Collection;
 
 /**
  * Description of ItemEvent

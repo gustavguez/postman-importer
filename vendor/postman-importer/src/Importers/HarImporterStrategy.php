@@ -3,12 +3,12 @@
 namespace PostmanImporter\Importers;
 
 use PostmanImporter\ImporterStrategyInterface;
-use PostmanImporter\Entities\Collection;
-use PostmanImporter\Entities\Item;
-use PostmanImporter\Entities\ItemRequest;
-use PostmanImporter\Entities\ItemRequestBody;
-use PostmanImporter\Entities\ItemRequestData;
-use PostmanImporter\Entities\ItemRequestHeader;
+use PostmanImporter\Collection\Collection;
+use PostmanImporter\Collection\Item;
+use PostmanImporter\Collection\ItemRequest;
+use PostmanImporter\Collection\ItemRequestBody;
+use PostmanImporter\Collection\ItemRequestData;
+use PostmanImporter\Collection\ItemRequestHeader;
 
 /**
  * Description of HarImporterStrategy
